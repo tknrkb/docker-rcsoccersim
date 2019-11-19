@@ -2,7 +2,7 @@ FROM ubuntu:16.04
 MAINTAINER Yasuo Miyoshi <miyoshi@is.kochi-u.ac.jp>
 
 ENV TZ Asia/Tokyo
-ENV DISPLAY docker.for.mac.host.internal:0
+ENV DISPLAY host.docker.internal:0
 ENV DEBIAN_FRONTEND nointeractive
 ENV DEBCONF_NOWARNINGS yes
 ENV RCSS_CONF_DIR /home/rcsoccersim/.rcssserver
@@ -72,15 +72,16 @@ RUN ./configure && make && make install
 
 RUN useradd -d /home/rcsoccersim -m -s /bin/bash rcsoccersim \
   && echo "rcsoccersim:rcsoccersim" | chpasswd
+
 USER rcsoccersim
-RUN mkdir -p $RCSS_CONF_DIR
+WORKDIR /home/rcsoccersim
+RUN mkdir -p $RCSS_CONF_DIR $TEAM_DIR $LOG_DIR
 
 VOLUME $TEAM_DIR
 VOLUME $LOG_DIR
 
 WORKDIR $TEAM_DIR
 
-ENTRYPOINT ["rcssserver", \
-  "--server::game_log_dir=$LOG_DIR", "--server::text_log_dir=$LOG_DIR"]
+ENTRYPOINT rcssserver --server::game_log_dir=$LOG_DIR --server::text_log_dir=$LOG_DIR
 
 
