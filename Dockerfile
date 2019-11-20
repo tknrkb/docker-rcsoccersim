@@ -82,6 +82,10 @@ VOLUME $LOG_DIR
 
 WORKDIR $TEAM_DIR
 
-ENTRYPOINT rcssserver --server::game_log_dir=$LOG_DIR --server::text_log_dir=$LOG_DIR
+ENTRYPOINT rcssserver \
+		--server::game_log_dir=$LOG_DIR \
+		--server::text_log_dir=$LOG_DIR \
+		--server::game_log_compression=9 \
+		--server::text_log_compression=9
 
 
