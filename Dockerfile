@@ -6,8 +6,8 @@ ENV DISPLAY host.docker.internal:0
 ENV DEBIAN_FRONTEND nointeractive
 ENV DEBCONF_NOWARNINGS yes
 ENV RCSS_CONF_DIR /home/rcsoccersim/.rcssserver
-ENV LOG_DIR /home/rcsoccersim/logs
-ENV TEAM_DIR /home/rcsoccersim/teams
+ENV LOG_DIR /logs
+ENV TEAM_DIR /teams
 USER root
 
 RUN apt-get update \
@@ -73,9 +73,13 @@ RUN ./configure && make && make install
 RUN useradd -d /home/rcsoccersim -m -s /bin/bash rcsoccersim \
   && echo "rcsoccersim:rcsoccersim" | chpasswd
 
+RUN mkdir -p $TEAM_DIR $LOG_DIR \
+    && chown -R rcsoccersim:rcsoccersim $TEAM_DIR \
+    && chown -R rcsoccersim:rcsoccersim $LOG_DIR 
+
 USER rcsoccersim
 WORKDIR /home/rcsoccersim
-RUN mkdir -p $RCSS_CONF_DIR $TEAM_DIR $LOG_DIR
+RUN mkdir -p $RCSS_CONF_DIR
 
 VOLUME $TEAM_DIR
 VOLUME $LOG_DIR

@@ -41,8 +41,8 @@ XQuartz を起動し，RoboCup Simulator のビューアアプリを XQuartz で
 rcsoccersim コンテナを起動する際には logs と teams のボリュームを指定しておくこと。logs ボリュームが指定されていないと rcssserver は起動できない。
 ~~~console
 (host)$ docker run --rm -d --name rcsoccersim \
-          -v $PWD/teams:/home/rcsoccersim/teams \
-          -v $PWD/logs:/home/rcsoccersim/logs \
+          -v $PWD/teams:/teams \
+          -v $PWD/logs:/logs \
           rcsoccersim
 ~~~
 
@@ -54,9 +54,9 @@ soccerwindow2 か rcssmonitor を起動する。
 (host)$ docker exec -it rcsoccersim bash
 (container)$ soccerwindow2 &
 
-(container)$ cd /home/rcsoccersim/teams/cyrus/
+(container)$ cd /teams/cyrus/
 (container)$ ./startAll &
 
-(container)$ cd /home/rcsoccersim/teams/helios/
+(container)$ cd /teams/helios/
 (container)$ ./startAll &
 ~~~
