@@ -36,9 +36,10 @@ XQuartz を起動し，RoboCup Simulator のビューアアプリを XQuartz で
 (host)$ docker build -t rcsoccersim .
 ~~~
 
-#### STEP 1: docker run
+#### STEP 1: docker run 
 
 rcsoccersim コンテナを起動する際には logs と teams のボリュームを指定しておくこと。logs ボリュームが指定されていないと rcssserver は起動できない。
+rcsoccersim スクリプトが実行され、rcssserver と rcssmonitor が起動する
 ~~~console
 (host)$ docker run --rm -d --name rcsoccersim \
           -v $PWD/teams:/teams \
@@ -46,13 +47,20 @@ rcsoccersim コンテナを起動する際には logs と teams のボリュー�
           rcsoccersim
 ~~~
 
-#### STEP 2: open soccerwindow2 && run players.
+soccerwindow2 を使う場合
+~~~console
+(host)$ docker run --rm -d --name rcsoccersim \
+          -v $PWD/teams:/teams \
+          -v $PWD/logs:/logs \
+          -e RCSSMONITOR=soccerwindow2 \
+          rcsoccersim
+~~~
 
-soccerwindow2 か rcssmonitor を起動する。
+#### STEP 2: run players.
+
 2つのチームのバイナリを起動する。
 ~~~console
 (host)$ docker exec -it rcsoccersim bash
-(container)$ soccerwindow2 &
 
 (container)$ cd /teams/cyrus/
 (container)$ ./startAll &
@@ -60,3 +68,21 @@ soccerwindow2 か rcssmonitor を起動する。
 (container)$ cd /teams/helios/
 (container)$ ./startAll &
 ~~~
+### その他
+
+soccerwindow2 のみ起動
+```
+docker run --rm \
+	rcsoccersim \
+	soccerwindow2
+```
+
+bash を起動
+```
+docker run --rm \
+	-v $PWD/teams:/teams \
+	-v $PWD/logs:/logs \
+	-it \
+	rcsoccersim \
+    bash
+```
