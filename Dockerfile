@@ -49,7 +49,7 @@ RUN git clone https://github.com/rcsoccersim/rcssmonitor.git
 
 WORKDIR /root/rcssserver
 RUN autoreconf -i && ./configure && make && make install && ldconfig
-RUN sed 's/^$SERV &/$SERV `cat ~\/rcssserver.opt` \&/' /usr/local/bin/rcsoccersim > /usr/local/bin/rcsoccersim.with_opt \
+RUN sed 's+^$SERV &+$SERV include=/home/rcsoccersim/rcssserver.opt_log \&+' /usr/local/bin/rcsoccersim > /usr/local/bin/rcsoccersim.with_opt \
     && chmod +x /usr/local/bin/rcsoccersim.with_opt
 
 WORKDIR /root/rcssmonitor
@@ -85,11 +85,17 @@ RUN mkdir -p $RCSS_CONF_DIR
 
 # rcssserver option
 RUN echo \
-    server::game_log_dir=$LOG_DIR \
-		server::text_log_dir=$LOG_DIR \
-		server::game_log_compression=9 \
-		server::text_log_compression=9 \
-    > rcssserver.opt
+        server::game_log_dir=$LOG_DIR \
+        server::text_log_dir=$LOG_DIR \
+        server::game_log_compression=9 \
+		    server::text_log_compression=9 \
+    > rcssserver.opt_log \
+    && echo \
+       server::auto_mode=true \
+       server::synch_mode=true \
+       server::nr_extra_halfs=0 \
+       server::penalty_shoot_outs=false \
+   > rcssserver.opt_auto
 
 VOLUME $TEAM_DIR
 VOLUME $LOG_DIR
