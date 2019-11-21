@@ -31,36 +31,50 @@ XQuartz を起動し，RoboCup Simulator のビューアアプリを XQuartz で
 
 ### 実行
 
+$IMAGE_NAME: イメージ名
+
+$CONTAINER_NAME: コンテナ名
+
+$TEAM_DIR: チームバイナリ置場
+
+$LOG_DIR: ログ出力先
+
 #### STEP 0: docker build
+
+イメージ作成
 ~~~console
-(host)$ docker build -t rcsoccersim .
+(host)$ docker build -t $IMAGE_NAME .
 ~~~
 
 #### STEP 1: docker run 
 
-rcsoccersim コンテナを起動する際には logs と teams のボリュームを指定しておくこと。logs ボリュームが指定されていないと rcssserver は起動できない。
+イメージを起動する際には logs と teams のボリュームを指定しておくこと。
+logs ボリュームが指定されていないと rcssserver は起動できない。
+
 rcsoccersim スクリプトが実行され、rcssserver と rcssmonitor が起動する
 ~~~console
-(host)$ docker run --rm -d --name rcsoccersim \
-          -v $PWD/teams:/teams \
-          -v $PWD/logs:/logs \
-          rcsoccersim
+(host)$ docker run --rm -d \
+          --name $CONTAINER_NAME \
+          -v $TEAM_DIR:/teams \
+          -v $LOG_DIR:/logs \
+          $IMAGE_NAME
 ~~~
 
 soccerwindow2 を使う場合
 ~~~console
-(host)$ docker run --rm -d --name rcsoccersim \
-          -v $PWD/teams:/teams \
-          -v $PWD/logs:/logs \
+(host)$ docker run --rm -d \
+          --name $CONTAINER_NAME \
+          -v $TEAM_DIR:/teams \
+          -v $LOG_DIR:/logs \
           -e RCSSMONITOR=soccerwindow2 \
-          rcsoccersim
+          $IMAGE_NAME
 ~~~
 
 #### STEP 2: run players.
 
 2つのチームのバイナリを起動する。
 ~~~console
-(host)$ docker exec -it rcsoccersim bash
+(host)$ docker exec -it $CONTAINER_NAME bash
 
 (container)$ cd /teams/cyrus/
 (container)$ ./startAll &
@@ -71,18 +85,43 @@ soccerwindow2 を使う場合
 ### その他
 
 soccerwindow2 のみ起動
-```
+```console
 docker run --rm \
-	rcsoccersim \
+	$IMAGE_NAME \
 	soccerwindow2
 ```
 
 bash を起動
-```
+```console
 docker run --rm \
-	-v $PWD/teams:/teams \
-	-v $PWD/logs:/logs \
+    -v $TEAM_DIR:/teams \
+    -v $LOG_DIR:/logs \
 	-it \
-	rcsoccersim \
+	$IMAGE_NAME \
     bash
+```
+
+auto_mode と synch_mode で指定したチームの試合を自動実行
+
+```console
+docker run --rm \
+    -v $TEAM_DIR:/teams \
+    -v $LOG_DIR:/logs \
+    $IMAGE_NAME \
+    rcssserver \
+    server::game_log_dir=/logs \
+	server::text_log_dir=/logs \
+	server::game_log_compression=9 \
+	server::text_log_compression=9 \
+    server::synch_mode=true \
+    server::auto_mode=true \
+    server::nr_extra_halfs=0 \
+    server::penalty_shoot_outs=false \
+    server::team_l_start="/teams/helios/startAll" \
+    server::team_r_start="/teams/cyrus/startAll2"
+```
+※ team_[lr]_start で指定するスクリプトは別のディレクトリから実行できなくてはならない.
+スクリプトの最初の方に↓のコードを追加すれば良い
+```
+cd `dirname $0`
 ```
