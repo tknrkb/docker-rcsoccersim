@@ -109,17 +109,36 @@ docker run --rm \
     -v $LOG_DIR:/logs \
     $IMAGE_NAME \
     rcssserver \
+    \
     server::game_log_dir=/logs \
 	server::text_log_dir=/logs \
 	server::game_log_compression=9 \
 	server::text_log_compression=9 \
+    \
     server::synch_mode=true \
     server::auto_mode=true \
     server::nr_extra_halfs=0 \
     server::penalty_shoot_outs=false \
+    \
     server::team_l_start="/teams/helios/startAll" \
     server::team_r_start="/teams/cyrus/startAll2"
 ```
+
+↑の設定を外部ファイルに出し include= を使って読みこんだバージョン
+```console
+docker run --rm \
+    -v $TEAM_DIR:/teams \
+    -v $LOG_DIR:/logs \
+    $IMAGE_NAME \
+    rcssserver \
+    \
+    include=/home/rcsoccersim/rcssserver.opt_log \
+    include=/home/rcsoccersim/rcssserver.opt_auto \
+    \
+    server::team_l_start="/teams/helios/startAll" \
+    server::team_r_start="/teams/cyrus/startAll2"
+```
+
 ※ team_[lr]_start で指定するスクリプトは別のディレクトリから実行できなくてはならない.
 スクリプトの最初の方に↓のコードを追加すれば良い
 ```
